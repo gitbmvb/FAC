@@ -1,0 +1,36 @@
+.data
+breakline: .asciiz "\n"
+.text
+main:
+li $v0, 5
+syscall
+move $s0, $v0 # t0 = D
+
+li $v0, 5
+syscall
+move $s1, $v0 # t0 = A
+
+li $v0, 5
+syscall
+move $s2, $v0 # t0 = N
+
+li $t0, 32
+sub $t0, $t0, $s2 # t0 = (32 - n)
+
+addi $s2, -1 # n = n - 1
+mul $t1, $s2, $s1 # t1 = (n - 1) * A
+
+add $t1, $s0, $t1 # t1 = D + (n -1) * A
+
+mul $t0, $t0, $t1
+
+
+move $a0, $t0
+li $v0, 1
+syscall
+
+la $a0, breakline
+li $v0, 4
+syscall
+la $v0, 10
+syscall
