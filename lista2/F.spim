@@ -1,0 +1,14 @@
+contaBits:
+    li $t0, 0
+    li $t1, 32
+    li $t2, 0
+    for:
+        beq $t1, $t2, exit
+        andi $t3, $a0, 1
+        add $t0, $t0, $t3
+        srl $a0, $a0, 1
+        addi $t2, 1
+        j for
+    exit:
+        move $v0, $t0
+        jr $ra

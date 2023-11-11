@@ -1,0 +1,47 @@
+.data
+    buffer: .space 5
+    breakline: .asciiz "\n"
+.text
+.globl main
+
+main:
+    li $v0, 5
+    syscall
+    move $t3, $v0
+
+    for:
+        beq $zero, $t3, exit
+
+        li $v0, 8
+        la $a0, buffer
+        li $a1, 5
+        syscall
+
+        la $t0, buffer
+        lb $t1, 0 ($t0)
+        addi $t1, $t1, -48
+
+        addi $t0, $t0, 2
+        lb $t2, 0 ($t0)
+        addi $t2, $t2, -48
+
+        if:
+            bne $t1, $t2, else
+            li $a0, 1
+            li $v0, 1
+            syscall
+            j endif
+        else:
+            li $a0, 2
+            li $v0, 1
+            syscall
+        endif:
+            la $a0, breakline
+            li $v0, 4
+            syscall
+
+        addi $t3, $t3, -1
+        j for
+    exit:
+        li $v0, 10
+        syscall

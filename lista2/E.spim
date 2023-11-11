@@ -1,0 +1,21 @@
+elemDistintos:
+    li $t0, 1
+    lw $t1, 0 ($a0)
+    li $t3, 1
+
+    loop:
+        beq $a1, $zero, exit
+
+        lw $t2, 0 ($a0)
+        if:
+            beq $t1, $t2, continue
+            move $t1, $t2
+            addiu $t0, $t0, 1
+        continue:
+        
+        addiu $a0, $a0, 4
+        subu $a1, $a1, $t3
+        j loop 
+    exit:
+        move $v0, $t0
+        jr $ra

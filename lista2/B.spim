@@ -1,0 +1,41 @@
+.data
+breakline: .asciiz "\n"
+.text
+
+main:
+    li $v0, 5
+    syscall
+    move $t1, $v0
+    addi $t1, $t1, -1
+
+    # $t0 tem o menor elemento
+    li $v0, 5
+    syscall
+    move $t0, $v0
+    
+    for:
+        beq $t1, $zero, exit
+        
+        li $v0, 5
+        syscall
+        move $t2, $v0
+
+        slt $t3, $t2, $t0
+        bne $t3, $zero, continue
+        move $t0, $t2
+        continue: 
+        addi $t1, $t1, -1
+        j for
+    exit:
+        li $v0, 1
+        move $a0, $t0
+        syscall
+
+        la $a0, breakline
+        li $v0, 4
+        syscall
+        la $v0, 10
+        syscall
+
+
+
