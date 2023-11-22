@@ -1,0 +1,93 @@
+.data
+    buffer: .space 5
+    breakline: .asciiz "\n"
+    singlespace: .asciiz " "
+    teste_n: .asciiz "Teste "
+.text
+.globl main
+read_numbers:
+    addi $sp, $sp, -12
+    sw $t0, 0 ($sp)
+    sw $t1, 4 ($sp)
+    sw $t2, 8 ($sp)
+
+    li $v0, 8
+    la $a0, buffer
+    li $a1, 5
+    syscall
+    la $t0, buffer
+
+    lbu $t1, 0 ($t0)
+    addi $t1, $t1, -48
+    lbu $t2, 2 ($t0)
+    addi $t2, $t2, -48
+    move $v0, $t1
+    move $v1, $t2
+
+    lw $t0, 0 ($sp)
+    lw $t1, 4 ($sp)
+    lw $t2, 8 ($sp)
+
+    addi $sp, $sp, 12
+    jr $ra
+
+main:
+    li $s0, 0
+    while:
+        jal read_numbers
+        move $s1, $v0
+        move $s2, $v1
+
+        beq $s1, $zero, finish
+        addi $s0, $s0, 1
+
+        addi $t0, $s1, 1
+        sll $t0, $t0, 2
+        move $a0, $t0
+        li $v0, 9
+        syscall
+        move $s3, $v0
+
+        li $s4, 0       
+        move $t0, $s2
+
+        for_read_flights:
+            beq $t0, $zero, end_read_flights
+                jal read_numbers
+                move $t1, $v0
+                move $t2, $v1
+
+                sll $t1, $t1, 2
+                sll $t2, $t2, 2
+                add $t1, $t1, $s3
+                add $t2, $t2, $s3
+                
+                lw $t3, 0 ($t1)
+                lw $t4, 0 ($t2)
+                addi $t3, $t3, 1
+                addi $t4, $t4, 1
+                sw $t3, 0 ($t1)
+                sw $t4, 0 ($t2)
+
+                slt $t5, $s4, $t3
+                if_1: beq $t5, $zero, skip_if_1
+                    move $s4, $t3
+                skip_if_1:
+
+                slt $t5, $s4, $t4
+                if_2: beq $t5, $zero, skip_if_2
+                    move $s4, $t4
+                skip_if_2:               
+
+                addi $t0, $t0, -1
+            j for_read_flights
+        end_read_flights:
+        
+        
+
+
+
+        j while
+    finish:
+        li $v0, 10
+        syscall
