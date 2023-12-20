@@ -1,0 +1,113 @@
+.data
+    error_message: .asciiz "Entradas invalidas.\n"
+    breakline: .asciiz "\n"
+    number1_double: .double 1.00
+    success_msg1: .asciiz "A raiz quadrada de "
+    success_msg2: .asciiz " eh "
+    success_msg3: .asciiz ", calculada em "
+    success_msg4: .asciiz " iteracoes.\n"
+    limit_msg1: .asciiz "Nao foi possivel calcular sqrt("
+    limit_msg2: .asciiz ").\n"
+.text
+.globl main
+main:
+    li $v0, 7
+    syscall
+    mov.d $f2, $f0
+    li $v0, 5
+    syscall
+    move $t0, $v0
+
+    # Checa se as entradas sao validas
+    li.d $f0, 1.0
+    c.le.d $f2, $f0
+    bc1t error
+    slti $t1, $t0, 1
+    bne $t1, $zero, error
+    li $t1, 16
+    slt $t1, $t1, $t0
+    bne $t1, $zero, error
+    
+    # Encontrar a e b
+    li.d $f6, 0.0
+    li.d $f8, 1.0
+    ldc1 $f0, number1_double
+    loop1:
+        mul.d $f10, $f6, $f6
+        mul.d $f12, $f8, $f8
+        add.d $f6, $f6, $f0
+        add.d $f8, $f8, $f0
+        c.lt.d $f12, $f2
+        bc1t loop1
+    sub.d $f6, $f6, $f0
+    sub.d $f8, $f8, $f0
+    
+    # Aproximar
+    li.d $f4, 1.00
+    li.d $f0, 10.00
+    loop2:
+        beq $t0, $zero, loop2_break
+            div.d $f4, $f4, $f0
+        addi $t0, $t0, -1
+        j loop2
+        loop2_break:
+    # (f2 = x, f6 = a1, f8 = b0, $f4 = 10-e)
+    li $t0, 1
+    li $t1, 100
+    li.d $f0, 2.0
+    loop3:
+        beq $t0, $t1, loop3_break
+           div.d $f10, $f2, $f6
+           if:
+                sub.d $f14, $f6, $f10
+                abs.d $f14, $f14
+                c.le.d $f14, $f4
+                bc1t success               
+            add.d $f6, $f6, $f10
+            div.d $f6, $f6, $f0
+        addi $t0, $t0, 1
+        j loop3
+    loop3_break:
+    limit_exceeded:
+        li $v0, 4
+        la $a0, limit_msg1
+        syscall
+
+        li $v0, 3
+        mov.d $f12, $f2
+        syscall
+
+        li $v0, 4
+        la $a0, limit_msg2
+        syscall
+    j end
+    success:
+        li $v0, 4
+        la $a0, success_msg1
+        syscall
+        li $v0, 3
+        mov.d $f12, $f2
+        syscall
+        li $v0, 4
+        la $a0, success_msg2
+        syscall
+        li $v0, 3
+        mov.d $f12, $f6
+        syscall
+        li $v0, 4
+        la $a0, success_msg3
+        syscall
+        li $v0, 1
+        move $a0, $t0
+        syscall
+        li $v0, 4
+        la $a0, success_msg4
+        syscall
+    j end
+    error:
+        li $v0, 4
+        la $a0, error_message
+        syscall
+    end:
+        li $v0, 10
+        syscall    
